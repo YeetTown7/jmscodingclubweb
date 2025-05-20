@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JMS Coding Club Calendar</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GENERAL PAGE AND BANNER STYLES (from your provided code) --- */
+        body {
+            margin: 0;
+            background: #f7f7f7;
+            font-family: 'Roboto', sans-serif;
+            display: block; /* Changed from flex to block to allow content stacking */
+            min-height: 100vh;
+        }
+
+        .banner {
+            background-color: #01317d; /* Your specified blue color */
+            color: #fff; /* White text for contrast */
+            padding: 15px 20px; /* Adjusted padding to accommodate dropdowns */
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            width: 100%;
+            display: flex; /* Make the banner a flex container */
+            align-items: center; /* Vertically center items in the banner */
+            justify-content: space-between; /* Space out banner title and dropdowns */
+            flex-wrap: wrap; /* Allow content to wrap on smaller screens */
+            gap: 15px; /* Space between items when they wrap */
+            box-sizing: border-box; /* Include padding in banner's width */
+        }
+
+        .banner p {
+            margin: 0; /* Remove default paragraph margin */
+            font-size: 30px;
+            color: white;
+            flex-shrink: 0; /* Prevent the title from shrinking too much */
+        }
+
+        /* Adjustments for the main container to center the calendar */
+        .main-content-wrapper {
+            display: flex;
+            justify-content: center; /* Center the calendar horizontally */
+            align-items: flex-start; /* Align calendar to the top of its space */
+            padding: 20px; /* Add some padding around the calendar */
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* --- New/Modified CSS for Dropdowns in Banner --- */
+        .banner .dropdown-container-in-banner {
+            display: flex; /* Makes this container a flex container */
+            justify-content: flex-end; /* Pushes dropdowns to the right within their space */
+            align-items: center; /* Vertically center dropdowns */
+            flex-grow: 1; /* Allow dropdowns to take up remaining space */
+            gap: 15px; /* Space between dropdowns */
+            flex-wrap: wrap; /* Allow dropdowns to wrap if space is limited */
+        }
+
+        .banner select {
+            /* Styles to make dropdowns blend with the banner */
+            background-color: #01317d; /* Match banner background */
+            color: #fff; /* White text */
+            border: 1px solid #004085; /* Slightly lighter blue border */
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            outline: none; /* Remove default focus outline */
+            -webkit-appearance: none; /* Remove default arrow on WebKit browsers */
+            -moz-appearance: none; /* Remove default arrow on Firefox */
+            appearance: none; /* Remove default arrow on other browsers */
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom white arrow */
+            background-repeat: no-repeat;
+            background-position: right 8px center; /* Position the custom arrow */
+            padding-right: 30px; /* Make space for the custom arrow */
+            min-width: 120px; /* Ensure a minimum width for dropdowns */
+            text-align: left; /* Align text left within dropdown */
+        }
+
+        .banner select option {
+            background-color: #fff; /* White background for options */
+            color: #333; /* Dark text for options */
+            padding: 8px;
+        }
+
+        .banner select:focus {
+            border-color: #4CAF50; /* Highlight border on focus */
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.5); /* Optional: add a subtle glow */
+        }
+
+        /* --- CALENDAR SPECIFIC STYLES (adapted from previous version) --- */
+        .calendar-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%; /* Make calendar take available width in its container */
+            max-width: 600px; /* Limit max width for better readability */
+            margin-top: 20px; /* Space below banner */
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .calendar-header button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .calendar-header button:hover {
+            background-color: #0056b3;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day-name {
+            font-weight: bold;
+            text-align: center;
+            color: #555;
+            padding: 5px 0;
+        }
+
+        .date-cell {
+            background-color: #e9e9e9;
+            padding: 15px 5px;
+            border-radius: 4px;
+            text-align: center;
+            min-height: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .date-cell.current-month {
+            background-color: #f0f0f0;
+        }
+
+        .date-cell.today {
+            border: 2px solid #007bff;
+            background-color: #e0f0ff;
+        }
+
+        .date-number {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .event {
+            background-color: #28a745;
+            color: white;
+            font-size: 0.8em;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-top: 3px;
+            width: calc(100% - 10px);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            box-sizing: border-box;
+        }
+
+        .date-cell.other-month {
+            background-color: #f9f9f9;
+            color: #ccc;
+            cursor: default;
+        }
+        .date-cell.other-month:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* You had some other styles for .container, h1, p, .btn, etc. that
+           are not directly used by the calendar or banner.
+           I've omitted them to keep the file focused on the combined
+           calendar and banner. If you need other content on the page,
+           you can re-add those styles and the corresponding HTML. */
+    </style>
+</head>
+<body>
+
+    <div class="banner">
+        <p>JMS Coding Club</p>
+        <div class="dropdown-container-in-banner">
+            <select>
+                <option value="">Projects</option>
+                <option value="Our Current Project">Our Current Project</option>
+                <option value="Python Fundamentals">Python Fundamentals</option>
+                <option value="Past Projects">Past Projects</option>
+            </select>
+
+            <select>
+                <option value="">About Us</option>
+                <option value="mission">What Are We Doing</option>
+                <option value="team">Our Team</option>
+            </select>
+
+            <select>
+                <option value="">Contact Us</option>
+                <option value="contacts">Contacts</option>
+            </select>
+
+            <select>
+                <option value="">Resources</option>
+                <option value="calendar">Calendar</option>
+                <option value="chat">Chat</option>
+                <option value="python-compiler">Python Compiler</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="main-content-wrapper">
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button id="prevMonth">&lt;</button>
+                <h2 id="currentMonthYear"></h2>
+                <button id="nextMonth">&gt;</button>
+            </div>
+            <div class="calendar-grid">
+                <div class="day-name">Sun</div>
+                <div class="day-name">Mon</div>
+                <div class="day-name">Tue</div>
+                <div class="day-name">Wed</div>
+                <div class="day-name">Thu</div>
+                <div class="day-name">Fri</div>
+                <div class="day-name">Sat</div>
+                </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT START --- */
+        document.addEventListener('DOMContentLoaded', () => {
+            const calendarGrid = document.querySelector('.calendar-grid');
+            const currentMonthYearHeader = document.getElementById('currentMonthYear');
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+
+            let currentDate = new Date(); // Current date object for navigation
+
+            // In-memory "database" for events.
+            // Keys are in "YYYY-M-D" format (e.g., "2025-5-20").
+            // Values are arrays of event strings.
+            // YOU CAN EDIT THIS OBJECT TO PROGRAM YOUR DATES!
+            const events = {
+                "2025-5-10": ["Project Deadline", "Team Review"],
+                "2025-5-20": ["My Birthday!", "Dentist Appointment"], // Example for today (May 20, 2025)
+                "2025-5-25": ["Family Gathering"],
+                "2025-6-1": ["Annual Company Picnic"],
+                "2025-6-5": ["Vacation Starts"],
+                "2025-7-4": ["Independence Day Holiday"],
+                "2025-8-15": ["Summer Festival"]
+                // Add more dates and events here!
+                // Example: "YYYY-M-D": ["Event 1", "Event 2"]
+            };
+
+            function renderCalendar() {
+                calendarGrid.innerHTML = `
+                    <div class="day-name">Sun</div>
+                    <div class="day-name">Mon</div>
+                    <div class="day-name">Tue</div>
+                    <div class="day-name">Wed</div>
+                    <div class="day-name">Thu</div>
+                    <div class="day-name">Fri</div>
+                    <div class="day-name">Sat</div>
+                `; // Clear previous dates and re-add day names
+
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth(); // 0 for January, 11 for December
+
+                currentMonthYearHeader.textContent = new Date(year, month).toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+                // Get the first day of the month (0 for Sunday, 6 for Saturday)
+                const firstDayOfMonth = new Date(year, month, 1).getDay();
+                // Get the last day of the month
+                const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+
+                // Calculate days from previous month to display (filler days)
+                const prevMonthLastDay = new Date(year, month, 0).getDate();
+                for (let i = firstDayOfMonth; i > 0; i--) {
+                    const date = prevMonthLastDay - i + 1;
+                    const dateCell = document.createElement('div');
+                    dateCell.classList.add('date-cell', 'other-month');
+                    dateCell.innerHTML = `<div class="date-number">${date}</div>`;
+                    calendarGrid.appendChild(dateCell);
+                }
+
+                // Render current month's days
+                for (let i = 1; i <= lastDayOfMonth; i++) {
+                    const dateCell = document.createElement('div');
+                    dateCell.classList.add('date-cell', 'current-month');
+                    dateCell.innerHTML = `<div class="date-number">${i}</div>`;
+
+                    // Create a key for lookup in the events object: YYYY-M-D
+                    const currentDayKey = `${year}-${month + 1}-${i}`;
+                    dateCell.dataset.date = currentDayKey; // Store date key for reference
+
+                    // Highlight today's date
+                    const today = new Date();
+                    if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        dateCell.classList.add('today');
+                    }
+
+                    // Check if there are events for this date and display them
+                    if (events[currentDayKey]) {
+                        events[currentDayKey].forEach(eventText => {
+                            addEventToCell(dateCell, eventText);
+                        });
+                    }
+
+                    calendarGrid.appendChild(dateCell);
+                }
+
+                // Calculate days from next month to display to fill the grid (filler days)
+                const totalCells = firstDayOfMonth + lastDayOfMonth;
+                const remainingCells = (totalCells % 7 === 0) ? 0 : (7 - (totalCells % 7));
+
+                for (let i = 1; i <= remainingCells; i++) {
+                    const dateCell = document.createElement('div');
+                    dateCell.classList.add('date-cell', 'other-month');
+                    dateCell.innerHTML = `<div class="date-number">${i}</div>`;
+                    calendarGrid.appendChild(dateCell);
+                }
+            }
+
+            // Function to add an event DOM element to a date cell
+            function addEventToCell(dateCell, eventText) {
+                const eventDiv = document.createElement('div');
+                eventDiv.classList.add('event');
+                eventDiv.textContent = eventText;
+                dateCell.appendChild(eventDiv);
+            }
+
+            // Event listeners for month navigation buttons
+            prevMonthBtn.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+
+            // Initial render of the calendar when the page loads
+            renderCalendar();
+        });
+        /* --- JAVASCRIPT END --- */
+    </script>
+</body>
+</html>
