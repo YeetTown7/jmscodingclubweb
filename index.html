@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Coding Club Chat</title>
-        <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JMS Coding Club</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
         body {
             margin: 0;
             background: #f7f7f7;
@@ -150,7 +153,7 @@
     </style>
 </head>
 <body>
-       <div class="banner">
+    <div class="banner">
         <p>JMS Coding Club</p>
         <div class="dropdown-container-in-banner">
             <select>
@@ -179,24 +182,9 @@
             </select>
         </div>
     </div>
-    </div>
-    <div id="chatbox"></div>
-    <input type="text" id="message" placeholder="Type your message...">
-    <button id="send">Send</button>
-    <script>
-        const chatbox = document.getElementById("chatbox");
-        const messageInput = document.getElementById("message");
-        const sendButton = document.getElementById("send");
 
-        sendButton.addEventListener("click", () => {
-            const message = messageInput.value;
-            if (message) {
-                const newMessage = document.createElement("div");
-                newMessage.textContent = message;
-                chatbox.appendChild(newMessage);
-                messageInput.value = "";
-            }
-        });
-    </script>
+    <div class="container">
+        <h1>Welcome to JMS Coding Club!</h1>
+        <p>This is where I type what the Club is about</p>
 </body>
 </html>
