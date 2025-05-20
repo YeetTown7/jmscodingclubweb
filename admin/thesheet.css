@@ -9,7 +9,7 @@
 .anim {
     animation-delay: 0ms;
     animation-direction: normal;
-    animation-duration: 1s;
+    animation-duration: 0.25s;
     animation-fill-mode: normal;
     animation-iteration-count: infinite;
     animation-name: death;
