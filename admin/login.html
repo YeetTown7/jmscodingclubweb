@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      /* padding: 40px; */
+    }
+    .login-container {
+      /* max-width: 300px;
+      margin: auto; */
+    }
+    input {
+      /* display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0; */
+    }
+    button {
+      /* padding: 10px; */
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button style="width: 100pt; height: 100pt;"onclick="login()">Submit</button>
+    <div id="error" class="error"></div>
+  </div>
+
+  <script>
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('error');
+
+      try {
+        const response = await fetch('users.json');
+        const users = await response.json();
+
+        const user = users.find(u => u.username === username && u.password === password);
+
+        if (user) {
+          // Redirect to dashboard
+          window.location.href = "dashboard.html";
+        } else {
+          errorDiv.textContent = "Invalid username or password.";
+        }
+      } catch (error) {
+        console.error('Error loading users:', error);
+        errorDiv.textContent = "Failed to load user data.";
+      }
+    }
+  </script>
+
+</body>
+</html>
